@@ -9,7 +9,7 @@ module Api
         @current_user
       end
 
-      def authenticate_request
+      def authenticate_user!
         header = request.headers['Authorization']
         header = header.split(' ').last if header
         decoded = decode_token(header)
