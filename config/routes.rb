@@ -4,6 +4,7 @@ Rails.application.routes.draw do
       post 'authenticate', to: 'authentication#authenticate'
       post 'share_video', to: 'videos#share'
       get 'videos', to: 'videos#index'
+      post 'videos/:video_id/vote', to: 'votes#create'
     end
   end
 end
