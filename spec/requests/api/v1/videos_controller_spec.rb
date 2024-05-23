@@ -6,6 +6,41 @@ RSpec.describe Api::V1::VideosController, type: :request do
     token = JWT.encode({ user_id: user.id }, Rails.application.secrets.secret_key_base)
     { "Authorization" => "Bearer #{token}" }
   end
+  let(:videos) { create_list(:video, 20, user: user) }
+
+  describe "GET /api/v1/videos" do
+    before { videos }
+
+    context "when the user is not authenticated" do
+      it "returns the list of videos without votes" do
+        get "/api/v1/videos", params: { page: 1 }
+
+        expect(response).to have_http_status(:ok)
+        json_response = JSON.parse(response.body)
+        expect(json_response["videos"].size).to eq(10)
+        expect(json_response["videos"].first).to include("id" => videos.first.id, "title" => videos.first.title, "description" => videos.first.description, "email" => user.email, "vote" => nil)
+        expect(json_response["meta"]["current_page"]).to eq(1)
+        expect(json_response["meta"]["total_pages"]).to eq(2)
+        expect(json_response["meta"]["total_count"]).to eq(20)
+      end
+    end
+
+    context "when the user is authenticated" do
+      before { create(:vote, :upvote, user: user, video: videos.first) }
+
+      it "returns the list of videos with votes" do
+        get "/api/v1/videos", params: { page: 1 }, headers: headers
+
+        expect(response).to have_http_status(:ok)
+        json_response = JSON.parse(response.body)
+        expect(json_response["videos"].size).to eq(10)
+        expect(json_response["videos"].first).to include("id" => videos.first.id, "title" => videos.first.title, "description" => videos.first.description, "email" => user.email, "vote" => "upvote")
+        expect(json_response["meta"]["current_page"]).to eq(1)
+        expect(json_response["meta"]["total_pages"]).to eq(2)
+        expect(json_response["meta"]["total_count"]).to eq(20)
+      end
+    end
+  end
 
   describe "POST /api/v1/share_video" do
     context "when the request is valid" do

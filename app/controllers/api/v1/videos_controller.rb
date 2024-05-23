@@ -3,6 +3,24 @@ module Api
     class VideosController < BaseController
       before_action :authenticate_user!, only: [:share]
 
+      def index
+        page = params[:page].to_i > 0 ? params[:page].to_i : 1
+        per_page = 10
+        offset = (page - 1) * per_page
+        
+        videos = Video.includes(:user, :votes).limit(per_page).offset(offset)
+        total_count = Video.count
+
+        render json: {
+          videos: ActiveModelSerializers::SerializableResource.new(videos, each_serializer: VideoSerializer, current_user: current_user),
+          meta: {
+            current_page: page,
+            total_pages: (total_count / per_page.to_f).ceil,
+            total_count: total_count
+          }
+        }
+      end
+
       def share
         video_url = params[:video_url]
         return render json: { error: 'Video URL is required!' }, status: :unprocessable_entity unless video_url
