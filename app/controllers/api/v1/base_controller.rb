@@ -6,16 +6,18 @@ module Api
       private
 
       def current_user
-        @current_user
+        @current_user ||= begin
+          header = request.headers['Authorization']
+          header = header.split(' ').last if header
+          decoded = decode_token(header)
+          User.find(decoded[:user_id]) if decoded
+        rescue ActiveRecord::RecordNotFound, JWT::DecodeError
+          nil
+        end
       end
 
       def authenticate_user!
-        header = request.headers['Authorization']
-        header = header.split(' ').last if header
-        decoded = decode_token(header)
-        @current_user = User.find(decoded[:user_id]) if decoded
-      rescue ActiveRecord::RecordNotFound, JWT::DecodeError
-        render json: { error: 'Not Authorized' }, status: :unauthorized
+        render json: { error: 'Not Authorized' }, status: :unauthorized unless current_user
       end
     
       def decode_token(token)
