@@ -10,7 +10,7 @@ module Api
           header = request.headers['Authorization']
           header = header.split(' ').last if header
           decoded = decode_token(header)
-          User.find(decoded[:user_id]) if decoded
+          User.find(decoded[:user_id])
         rescue ActiveRecord::RecordNotFound, JWT::DecodeError
           nil
         end

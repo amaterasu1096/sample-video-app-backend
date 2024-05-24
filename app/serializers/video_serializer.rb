@@ -1,5 +1,5 @@
 class VideoSerializer < ActiveModel::Serializer
-  attributes :id, :title, :description, :email, :vote
+  attributes :id, :title, :description, :url, :email, :vote
 
   def email
     object.user.email
