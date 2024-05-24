@@ -17,26 +17,26 @@ RSpec.describe Api::V1::VideosController, type: :request do
 
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
-        expect(json_response["videos"].size).to eq(10)
-        expect(json_response["videos"].first).to include("id" => videos.first.id, "title" => videos.first.title, "description" => videos.first.description, "email" => user.email, "vote" => nil)
+        expect(json_response["videos"].size).to eq(5)
+        expect(json_response["videos"].first).to include("id" => videos.last.id, "title" => videos.last.title, "description" => videos.last.description, "url" => videos.last.url, "email" => user.email, "vote" => nil)
         expect(json_response["meta"]["current_page"]).to eq(1)
-        expect(json_response["meta"]["total_pages"]).to eq(2)
+        expect(json_response["meta"]["total_pages"]).to eq(4)
         expect(json_response["meta"]["total_count"]).to eq(20)
       end
     end
 
     context "when the user is authenticated" do
-      before { create(:vote, :upvote, user: user, video: videos.first) }
+      before { create(:vote, :upvote, user: user, video: videos.last) }
 
       it "returns the list of videos with votes" do
         get "/api/v1/videos", params: { page: 1 }, headers: headers
 
         expect(response).to have_http_status(:ok)
         json_response = JSON.parse(response.body)
-        expect(json_response["videos"].size).to eq(10)
-        expect(json_response["videos"].first).to include("id" => videos.first.id, "title" => videos.first.title, "description" => videos.first.description, "email" => user.email, "vote" => "upvote")
+        expect(json_response["videos"].size).to eq(5)
+        expect(json_response["videos"].first).to include("id" => videos.last.id, "title" => videos.last.title, "description" => videos.last.description, "url" => videos.last.url, "email" => user.email, "vote" => "upvote")
         expect(json_response["meta"]["current_page"]).to eq(1)
-        expect(json_response["meta"]["total_pages"]).to eq(2)
+        expect(json_response["meta"]["total_pages"]).to eq(4)
         expect(json_response["meta"]["total_count"]).to eq(20)
       end
     end

@@ -5,10 +5,10 @@ module Api
 
       def index
         page = params[:page].to_i > 0 ? params[:page].to_i : 1
-        per_page = 10
+        per_page = 5
         offset = (page - 1) * per_page
         
-        videos = Video.includes(:user, :votes).limit(per_page).offset(offset)
+        videos = Video.includes(:user, :votes).order(id: :desc).limit(per_page).offset(offset)
         total_count = Video.count
 
         render json: {
@@ -34,9 +34,10 @@ module Api
         video = current_user.videos.build(url: video_url, title: video_info.title, description: video_info.description)
 
         if video.save
+          VideoNotificationJob.perform_later(video.title, current_user.email)
           render json: { message: 'Video shared successfully' }, status: :ok
         else
-          render json: { error: video.errors.full_messages }, status: :unprocessable_entity
+          render json: { error: video.errors.full_messages.join('. ') }, status: :unprocessable_entity
         end
       end
     end
