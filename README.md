@@ -1,24 +1,55 @@
-# README
+# Introduction
+This project is the backend part of a YouTube video sharing application built with Ruby on Rails.
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Key features
+- Watch list shared videos
+- Share video
+- Vote video
+- Readtime notification when new video has been shared.
 
-Things you may want to cover:
+# Prerequisites
+- ruby 3.2.2
+- rails 6.1.7.7
+- sqlite
 
-* Ruby version
+# Installation & Configuration (Using Docker)
+- step 1: clone repository from github
+```
+git clone git@github.com:amaterasu1096/sample-video-app-backend.git
+```
 
-* System dependencies
+- step 2: build docker image
+```
+docker-compose build .
+```
 
-* Configuration
+- step 3: run container
+```
+docker-compose up -d
+```
 
-* Database creation
+- step 4: migrate database
+```
+docker-compose run --rm app bundle exec rails db:migrate
+```
 
-* Database initialization
+# Running the Application (Using Docker)
+Start or stop application
 
-* How to run the test suite
+```
+docker-compose start
+docker-compose stop
+```
 
-* Services (job queues, cache servers, search engines, etc.)
+Application run at : `http://localhost:3001`
 
-* Deployment instructions
+# Runing Unit Test
+- run integration test
+```
+docker-compose run --rm app bundle exec rails test
+```
 
-* ...
+- run rspec test
+```
+docker-compose run --rm app bundle exec rspec
+```
